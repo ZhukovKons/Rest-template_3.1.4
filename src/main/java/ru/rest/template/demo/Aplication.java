@@ -3,10 +3,7 @@ package ru.rest.template.demo;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import ru.rest.template.demo.model.User;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class Aplication {
