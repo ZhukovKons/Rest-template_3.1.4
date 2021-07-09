@@ -1,31 +1,46 @@
 package ru.rest.template.demo;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import ru.rest.template.demo.model.User;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Aplication {
 
     private static String urlServer = "http://91.241.64.178:7081/api/users";
-    ;
+    private static RestTemplate restTemplate;
+    private static HttpHeaders headers;
+
 
     public static void main(String[] args) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers;
+        restTemplate = new RestTemplate();
+        headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<User[]> responseEntity = restTemplate.getForEntity(urlServer, User[].class);
-        headers = responseEntity.getHeaders();
-        List<String> cookie = headers.get("Set-Cookie");
+        ResponseEntity<User[]> responseEntityGET = restTemplate.getForEntity(urlServer, User[].class);
+        List<String> cookie = responseEntityGET.getHeaders().get("Set-Cookie");
+        headers.add("Cookie", String.join(";", cookie));
 
 
+        User user = new User(3L, "James", "Brown", (byte) 1);
+        String code;
 
+        code = getCode(urlServer, user, HttpMethod.POST);
+        user.setName("Thomas");
+        user.setLastName("Shelby");
+        code += getCode(urlServer, user, HttpMethod.PUT);
+        code += getCode(urlServer + "/3", user, HttpMethod.DELETE);
+
+        System.out.println(code);
+
+    }
+
+    public static String getCode(String url, User user, HttpMethod method) {
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, method, new HttpEntity<User>(user, headers), String.class);
+        return responseEntity.getBody();
     }
 }
